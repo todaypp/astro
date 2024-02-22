@@ -201,9 +201,9 @@ export function createBasicPipeline(options = {}) {
 		options.routeCache ?? new RouteCache(options.logger ?? defaultLogger, mode),
 		options.site
 	);
-	pipeline.componentMetadata = () => new Map;
+	pipeline.componentMetadata = () => new Map();
 	pipeline.headElements = () => ({ scripts: new Set(), styles: new Set(), links: new Set() });
-	pipeline.resolve = id => id;
+	pipeline.resolve = (id) => id;
 	return pipeline;
 }
 

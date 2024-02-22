@@ -1,11 +1,25 @@
-import type { APIContext, AstroGlobal, AstroGlobalPartial, ComponentInstance, MiddlewareHandler, RouteData, SSRResult } from '../@types/astro.js';
+import type {
+	APIContext,
+	AstroGlobal,
+	AstroGlobalPartial,
+	ComponentInstance,
+	MiddlewareHandler,
+	RouteData,
+	SSRResult,
+} from '../@types/astro.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { attachCookiesToResponse } from './cookies/index.js';
 import { sequence } from './middleware/index.js';
 import { AstroCookies } from './cookies/index.js';
-import { ASTRO_VERSION, ROUTE_TYPE_HEADER, clientAddressSymbol, clientLocalsSymbol, responseSentSymbol } from './constants.js';
+import {
+	ASTRO_VERSION,
+	ROUTE_TYPE_HEADER,
+	clientAddressSymbol,
+	clientLocalsSymbol,
+	responseSentSymbol,
+} from './constants.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import {
@@ -101,7 +115,7 @@ export class RenderContext {
 								};
 
 		const response = await middleware(apiContext, lastNext);
-		
+
 		if (!response || !(response instanceof Response)) {
 			throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
 		}
@@ -190,7 +204,8 @@ export class RenderContext {
 			componentMetadata,
 			compressHTML,
 			/** This function returns the `Astro` faux-global */
-			createAstro: (astroGlobal, props, slots) => this.createAstro(result, astroGlobal, props, slots),
+			createAstro: (astroGlobal, props, slots) =>
+				this.createAstro(result, astroGlobal, props, slots),
 			links,
 			partial,
 			pathname,
@@ -220,7 +235,7 @@ export class RenderContext {
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null
 	): AstroGlobal {
-		const { cookies, i18nData, locals, params, pipeline, request } = this
+		const { cookies, i18nData, locals, params, pipeline, request } = this;
 		const { currentLocale, preferredLocale, preferredLocaleList } = i18nData;
 		const { response, url } = result;
 		const redirect = (path: string, status = 302) => {
@@ -231,9 +246,25 @@ export class RenderContext {
 				});
 			}
 			return new Response(null, { status, headers: { Location: path } });
-		}
+		};
 		const slots = new Slots(result, slotValues, pipeline.logger) as unknown as AstroGlobal['slots'];
-		const astroDynamicPartial: Omit<AstroGlobal, keyof AstroGlobalPartial | 'clientAddress' | 'self'> = { cookies, preferredLocale, preferredLocaleList, currentLocale, params, props, locals, redirect, request, response, slots, url };
+		const astroDynamicPartial: Omit<
+			AstroGlobal,
+			keyof AstroGlobalPartial | 'clientAddress' | 'self'
+		> = {
+			cookies,
+			preferredLocale,
+			preferredLocaleList,
+			currentLocale,
+			params,
+			props,
+			locals,
+			redirect,
+			request,
+			response,
+			slots,
+			url,
+		};
 
 		return {
 			__proto__: astroStaticPartial,
@@ -251,8 +282,10 @@ export class RenderContext {
 					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 				}
 			},
-		// `Astro.self` is added by the compiler
-		} as unknown as typeof astroStaticPartial & typeof astroDynamicPartial & Pick<AstroGlobal, 'clientAddress' | 'self'>
+			// `Astro.self` is added by the compiler
+		} as unknown as typeof astroStaticPartial &
+			typeof astroDynamicPartial &
+			Pick<AstroGlobal, 'clientAddress' | 'self'>;
 	}
 
 	/**
@@ -262,19 +295,27 @@ export class RenderContext {
 	#i18nData?: Pick<APIContext, 'currentLocale' | 'preferredLocale' | 'preferredLocaleList'>;
 
 	get i18nData() {
-		if (this.#i18nData) return this.#i18nData
-		const { pipeline: { i18n }, request, routeData, url } = this;
-		if (!i18n) return {
-			currentLocale: undefined,
-			preferredLocale: undefined,
-			preferredLocaleList: undefined
-		}
-		const { defaultLocale, locales, strategy } = i18n
+		if (this.#i18nData) return this.#i18nData;
+		const {
+			pipeline: { i18n },
+			request,
+			routeData,
+			url,
+		} = this;
+		if (!i18n)
+			return {
+				currentLocale: undefined,
+				preferredLocale: undefined,
+				preferredLocaleList: undefined,
+			};
+		const { defaultLocale, locales, strategy } = i18n;
 		return (this.#i18nData = {
 			// TODO: we are making two calls to computeCurrentLocale(). In various cases, one works and the other doesn't.
 			// Ideally, we could use `renderContext.pathname` which is intended to be the one true "file-system-matchable" path.
 			// - Arsh
-			currentLocale: computeCurrentLocale(url.pathname, locales, strategy, defaultLocale) ?? computeCurrentLocale(routeData.route, locales, strategy, defaultLocale),
+			currentLocale:
+				computeCurrentLocale(url.pathname, locales, strategy, defaultLocale) ??
+				computeCurrentLocale(routeData.route, locales, strategy, defaultLocale),
 			preferredLocale: computePreferredLocale(request, locales),
 			preferredLocaleList: computePreferredLocaleList(request, locales),
 		});
